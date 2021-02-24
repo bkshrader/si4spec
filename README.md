@@ -132,6 +132,7 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 | **Name**  | Unused | Black | White |
 
 | Result | Score | Description |
+| --- | --- | --- |
 | 0x00 | * | None |
 | 0x01 | 1-0 | White Wins |
 | 0x02 | 0-1 | Black Wins |
@@ -180,7 +181,7 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 
 ##### Event Date
 | **Bit**   | 11-9 | 8-5 | 4-0 |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | **Name**  | Year Mod | Event Month | Event Day |
 
 ##### Year Mod
@@ -213,8 +214,8 @@ Common values:
 
 ##### Home Pawn Data
 | **Bit**   |  69-64 | 63-0 |
-| --- | --- | --- | --- |
-| **Name**  | Data Length | Data
+| --- | --- | --- |
+| **Name**  | Data Length | Data |
 
 Data Length is a uint6 containing the number of valid entries in Data.
 Data is an array of uint4 index values indicating that the pawn at that index moved from its home square in the order the array is populated. The first index is in the most significant nibble of Data.
