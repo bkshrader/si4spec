@@ -21,7 +21,7 @@ An SCID database consists of three mandatory files:
 
 The Index file consists of a header 182 bytes long, followed by one 47 byte index record for each stored game.
 
-All numbers are stored in Big Endian format unless otherwise noted
+**All values are Big Endian unless otherwise noted**
 
 ## The Header
 
@@ -46,8 +46,8 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 | Name | Length (Bytes) | Data Type | Description |
 | --- | --- | --- | --- |
 | Offset | 4 | uint | Location of entry starting byte in the GameBase |
-| Length Low | 2 | uint | Two least significant bytes (Big Endian) of the entry length in the GameBase |
-| Length High | 1 | uint | Most significant byte of the entry length in the GameBase. On Scid versions < 4 this value did not exist, so should be skipped if trying to read an older version file. |
+| Length Low | 2 | custom | Two least significant bytes (Big Endian) of the entry length in the GameBase |
+| Length High | 1 | custom | Most significant byte of the entry length in the GameBase. On Scid versions < 4 this value did not exist, so should be skipped if trying to read an older version file. |
 | Flags | 2 | custom | Custom Index Flags (see below). |
 | White/Black High | 1 | custom | Most significant bits of the White and Black Player IDs in the NameBase. |
 | White ID Low | 2 | custom | Two least significant bytes of the White Player ID in the NameBase. |
@@ -56,12 +56,13 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 | Event ID Low | 2 | custom | Least significant bytes of the Event ID in the NameBase. |
 | Site ID Low | 2 | custom | Least significant bytes of the Site ID in the NameBase. |
 | Round ID Low | 2 | custom | Least significant bytes of the Round ID in the NameBase. |
-| Var Counts | 2 | UNKNOWN | UNKNOWN |
+| Result/Variation Counts | 2 | custom | Counters for comments, variations, etc. Also stores the result of the Game. |
 | ECO Code | 2 | uint | Encyclopedia of Chess Openings Code for the game. |
 | Dates | 4 | custom | The date of the Game and date of the Event. |
 | White Elo | 2 | uint | Elo rating of the White Player, limited to 4000 since Elo ratings are stored interally in 12 bits. |
 | Black Elo | 2 | uint | Elo rating of the Black Player, limited to 4000 since Elo ratings are stored interally in 12 bits. |
-| Final Mat Sig | 4 | UNKNOWN | UNKOWN |
+| Stored Line Code | 1 | UNKNOWN | UNKNOWN |
+| Final Material | 3 | custom | Material of the final position in the game. |
 | Number of Plies Low | 1 | uint | Least signficant byte of the number of plies (half moves) played in the Game. |
 | Number of Plies High / Home Pawn Data | 9 | custom | Most significant bits of number of plies and Home Pawn Data. |
 
@@ -69,23 +70,126 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 
 ### Description of Custom Data Types
 
+#### Length
+| **Bit**   | 23-16 | 15-0 |
+| --- | --- | --- |
+| **Name**  | Length High | Length Low |
+
 #### Flags
+
+| **Bit**   | 15 | 14 | 13 | 12 | 11 | 10 | 9 | 8 | 7 | 6 | 5 | 4 | 3 | 2 | 1 | 0 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Name**  | User Defined | Blunder | Brilliancy | Queenside Play | Kingside Play | Tactics | Pawn Structure | Novelty | Endgame | Middlegame | Black Opening | White Opening | Marked for Deletion | Underpromotion(s) | Promotion(s) | Has Custom Starting Position |
 
 #### White/Black ID
 
+##### White/Black High
+| **Bit**   | 7-4 | 3-0 |
+| --- | --- | --- |
+| **Name**  | White ID High | Black ID High |
+
+##### White ID
+| **Bit**   | 19-16 | 15-0 |
+| --- | --- | --- |
+| **Name**  | White ID High | White ID Low |
+
+##### Black ID
+| **Bit**   | 19-16 | 15-0 |
+| --- | --- | --- |
+| **Name**  | Black ID High | Black ID Low |
+
+
 #### Event/Site/Round ID
 
+##### Event/Site/Round ID High
+| **Bit**   | 7-5 | 4-2 | 1-0 |
+| --- | --- | --- | --- |
+| **Name**  | Event ID High | Site ID High | Round ID High |
+
+##### Event ID
+| **Bit**   | 18-16 | 15-0 |
+| --- | --- | --- |
+| **Name**  | Event ID High | Event ID Low |
+
+##### Site ID
+| **Bit**   | 18-16 | 15-0 |
+| --- | --- | --- |
+| **Name**  | Site ID High | Site ID Low |
+
+##### Round ID
+| **Bit**   | 17-16 | 15-0 |
+| --- | --- | --- |
+| **Name**  | Round ID High | Round ID Low |
+
+#### Result/Variation Counts
+| **Bit**   | 15-12 | 11-0 |
+| --- | --- | --- |
+| **Name**  | Result | Variation Counts |
+
+##### Result
+| **Bit**   | 3-2 | 1 | 0 |
+| --- | --- | --- | --- |
+| **Name**  | Unused | Black | White |
+
+| Result | Score | Description |
+| 0x00 | * | None |
+| 0x01 | 1-0 | White Wins |
+| 0x02 | 0-1 | Black Wins |
+| 0x03 | 1/2-1/2 | Draw |
+
+##### Variation Counts
+# TODO
+
 #### ECO Code
+| ECO Code | String Value |
+| ---      | ---          |
+| 0x0000 | None |
+| 0x0001 | A00 |
+| 0x0002 | A00a |
+| 0x0003 | A00a1 |
+| 0x0004 | A00a2 |
+| 0x0005 | A00a3 |
+| 0x0006 | A00a4 |
+| 0x0007 | A00b |
+| 0x0008 | A00b1 |
+| ... | ... |
+| 0x0083 | A00z4 |
+| 0x0084 | A01 |
+| 0x0085 | A01a |
+| 0x0086 | A01a1 |
+| ... | ... |
+| 0x332C | A99z4 |
+| 0x332D | B00 |
+| 0x332E | B00a |
+| ... | ... |
+| 0xFFDC | E99z4 |
 
-#### Final Mat Sig
+*Note: Values 0xFFDD up to 0xFFFF are possible, but are not valid ECO Codes*
 
-#### Number of Plies
+[Reference Decoder Source](https://github.com/xmcpam/scid/blob/b21bf33983b21d37fc916a5edaed89897240f91d/src/misc.cpp#L112)
 
-#### Home Pawn Data
+#### Dates
+
+#### Stored Line Code
+
+#### Final Material
+
+#### Number of Plies / Home Pawn Data
 
 
 # The NameBase File (.sn4)
 
-There are four NameBases, one each for PLAYER, EVENT , SITE and ROUND tags
+> There are four NameBases, one each for PLAYER, EVENT , SITE and ROUND tags
+> Contains all Player, Event, Site and Round names used in the database. Each name is stored only once even if it occurs in many games, and there is a database restriction on the number of unique names. The limits are -
+>
+> Player names: 2^20 - 1
+> Event names: 2^19 - 1
+> Site names: 2^19 - 1
+> Round names: 2^18 - 1
+> 
+> and are defined in namebase.h The name file is usually the smallest of the three database files.
 
-# The GameBase File (.sg4)
+# The Game File (.sg4)
+> This file contains the actual moves, variations and comments of each game.
+>
+> The move encoding format is very compact: most moves take only a single byte (8 bits)! This is done by storing the piece to move in 4 bits (2^4 = 16 pieces) and the move direction in another 4 bits. Only Queen diagonal moves cannot be stored in this small space. This compactness is the reason Scid does not support chess variants.
