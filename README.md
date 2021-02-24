@@ -57,7 +57,7 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 | Site ID Low | 2 | custom | Least significant bytes of the Site ID in the NameBase. |
 | Round ID Low | 2 | custom | Least significant bytes of the Round ID in the NameBase. |
 | Result/Variation Counts | 2 | custom | Counters for comments, variations, etc. Also stores the result of the Game. |
-| ECO Code | 2 | uint | Encyclopedia of Chess Openings Code for the game. |
+| ECO Code | 2 | custom | Encyclopedia of Chess Openings Code for the game. |
 | Dates | 4 | custom | The date of the Game and date of the Event. |
 | White Elo | 2 | uint | Elo rating of the White Player, limited to 4000 since Elo ratings are stored interally in 12 bits. |
 | Black Elo | 2 | uint | Elo rating of the Black Player, limited to 4000 since Elo ratings are stored interally in 12 bits. |
