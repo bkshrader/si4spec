@@ -21,7 +21,7 @@ An SCID database consists of three mandatory files:
 
 The Index file consists of a header 182 bytes long, followed by one 47 byte index record for each stored game.
 
-**All values are Big Endian unless otherwise noted**
+**Consecutive bytes are big endian unless otherwise stated**
 
 ## The Header
 
@@ -169,13 +169,55 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 [Reference Decoder Source](https://github.com/xmcpam/scid/blob/b21bf33983b21d37fc916a5edaed89897240f91d/src/misc.cpp#L112)
 
 #### Dates
+| **Bit**   | 31-20 | 19-0 |
+| --- | --- | --- |
+| **Name**  | Event Date | Game Date |
+
+##### Game Date
+| **Bit**   | 19-9 | 8-5 | 4-0 |
+| --- | --- | --- | --- |
+| **Name**  | Game Year | Game Month | Game Day |
+
+##### Event Date
+| **Bit**   | 11-9 | 8-5 | 4-0 |
+| --- | --- | --- |
+| **Name**  | Year Mod | Event Month | Event Day |
+
+##### Year Mod
+If Year Mod == 0 then event date is unknown
+Else Event Date = Game Date + Year Mod - 4
+
+Common values:
+| Year Mod | Description |
+| --- | --- |
+| 0b000 | Undefined Event Date |
+| 0b011 | Event date is in the year before the game |
+| 0b100 | Event date is in the same year as the game |
+| 0b101 | Event date is in the year after the game |
 
 #### Stored Line Code
+# TODO
 
 #### Final Material
+# TODO
 
 #### Number of Plies / Home Pawn Data
+| **Bit**   | 71-70 | 69-0 |
+| --- | --- | --- |
+| **Name**  | Number of Plies High | Home Pawn Data |
 
+##### Number of Plies
+| **Bit**   | 9-8 | 7-0 |
+| --- | --- | --- |
+| **Name**  | Number of Plies High | Number of Plies Low |
+
+##### Home Pawn Data
+| **Bit**   |  69-64 | 63-0 |
+| --- | --- | --- | --- |
+| **Name**  | Data Length | Data
+
+Data Length is a uint6 containing the number of valid entries in Data.
+Data is an array of uint4 index values indicating that the pawn at that index moved from its home square in the order the array is populated. The first index is in the most significant nibble of Data.
 
 # The NameBase File (.sn4)
 
@@ -189,7 +231,11 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 > 
 > and are defined in namebase.h The name file is usually the smallest of the three database files.
 
+# TODO
+
 # The Game File (.sg4)
 > This file contains the actual moves, variations and comments of each game.
 >
 > The move encoding format is very compact: most moves take only a single byte (8 bits)! This is done by storing the piece to move in 4 bits (2^4 = 16 pieces) and the move direction in another 4 bits. Only Queen diagonal moves cannot be stored in this small space. This compactness is the reason Scid does not support chess variants.
+
+# TODO
