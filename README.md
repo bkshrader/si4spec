@@ -826,5 +826,5 @@ The top 4 bits of the move is the Piece Number. Each piece for each player is as
 | Rank/File Value | Destination | Target File/Rank |
 | --- | --- | --- |
 | 1 | Value | Current File / Value |
-| 0 | Current File | **Diagonal is stored in next byte.** Target position is (value - 64). Value MUST be between 64 and 127 inclusive. |
+| 0 | Current File | **Diagonal Movement Value is stored in next byte.** Target position is (value - 64). Value MUST be between 64 and 127 inclusive. |
 | 0 | Any Other Value | Value / Current Rank |
