@@ -151,14 +151,14 @@ Variation Counts stores three values: Variations, Comments, and NAGs (Numeric An
 | **Name**  | NAGs Code | Comments Code | Variations Code |
 
 ###### Code Values
-| Code | Count Range |
-| --- | --- |
-| 0-10 | Exact Value |
-| 11 | 13-17 |
-| 12 | 18-24 |
-| 13 | 25-34 | 
-| 14 | 35-44 |
-| 15 | >= 50 |
+| Code | Count Range | Reported Count |
+| --- | --- | --- |
+| 0-10 | Exact Value | Exact Value |
+| 11 | 13-17 | 15 |
+| 12 | 18-24 | 20 |
+| 13 | 25-34 | 30 |
+| 14 | 35-44 | 40 |
+| 15 | >= 50 | 50+ |
 
 
 #### ECO Code
