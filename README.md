@@ -561,9 +561,43 @@ Data is an array of uint4 index values indicating that the pawn at that index mo
 > Site names: 2^19 - 1
 > Round names: 2^18 - 1
 > 
-> and are defined in namebase.h The name file is usually the smallest of the three database files.
+> For each name type, names are written in alphabetical order and the strings are front-coded to save space.
+> The name file is usually the smallest of the three database files.
 
-# TODO
+## The Header
+| Name | Length (Bytes) | Data Type | Description |
+| --- | --- | --- | --- |
+| Magic Header | 8 | string | 8-byte identifier for Scid name files. 53 63 69 64 2E 73 6E 00 in Hex i.e. Scid.sn\NUL in ASCII |
+| Compatibility | 4 | none | Empty 4 bytes for backwards-compatibility. Previously stored a timestamp in Scid versions < 4 |
+| Player Names Count | 3 | uint | Number of player names in the NameBase. |
+| Event Names Count | 3 | uint | Number of event names in the NameBase. |
+| Site Names Count | 3 | uint | Number of site names in the NameBase. |
+| Round Names Count | 3 | uint | Number of round names in the NameBase. |
+| Player Maximum Frequency | 3 | uint | Largest number of times any player is mentioned in index. |
+| Event Maximum Frequency | 3 | uint | Largest number of times any event is mentioned in index. |
+| Site Maximum Frequency | 3 | uint | Largest number of times any site is mentioned in index. |
+| Round Maximum Frequency | 3 | uint | Largest number of times any round is mentioned in index. |
+
+## The Body
+The body consists of one section each for the different NameBases: Player, Event, Site, and Round respectively. Each is identical in structure, and contains a number of entries equal to the count stored in the header. 
+
+| Name | Length (Bytes) | Data Type | Description |
+| --- | --- | --- | --- |
+| ID | 2-3 | uint | Reference ID for the name entry used throughout the database. Scid throws a corrupt error if ID >= Names Count. |
+| Frequency | 1-3 | uint | Number of times this name is referenced in the game database. |
+| Length | 1 | uint | Length of the name string. |
+| Prefix Length | 1\* | uint | Number of characters shared between this entry and the previous entry. \*The first entry does not contain this byte, do not attempt to read it on the first entry. |
+| Name Suffix | length - prefix | String | The name of the entry with the prefix removed. |
+
+*Note: ID and Frequency values have variable lengths determined by the maximum frequencies stored in the header. These values are stored in the smallest number of bytes in their length range possible depending on the maximum frequency value.*
+
+| Maximum Frequency Value | Variable Length (Bytes) |
+| --- | --- |
+| < 256 | 1\* |
+| < 65536 | 2 |
+| Greater | 3 |
+
+*\*Note: ID will never be 1 byte long*
 
 # The Game File (.sg4)
 > This file contains the actual moves, variations and comments of each game.
