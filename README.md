@@ -635,7 +635,7 @@ The Game File is divided into data blocks with a maximum size of 131072 bytes du
 | Flags | 1 | custom | Game flags. Redundant with IndexEntry, but only contains first three flags. |
 | Starting Position | terminated\* | string | FEN string for the starting position if non-standard. NULL-terminated. \*Does not exist if starting position is standard. |
 | Move List | terminated | custom | Full move list including variations. Custom terminated.|
-| Comments | variable | custom | Full list of user-defined comments. |
+| Comments | variable | string | Full list of user-defined comments. Presented in order of depth-first traversal. NULL-terminated. |
 
 [Reference Decoder](https://github.com/xmcpam/scid/blob/b21bf33983b21d37fc916a5edaed89897240f91d/src/game.cpp#L3466)
 
@@ -823,10 +823,8 @@ The top 4 bits of the move is the Piece Number. Each piece for each player is as
 | --- | --- | --- |
 | **Name**  | Rank/File | Destination |
 
-If Rank/File is 1, Destination is the rank to move to on same file as Queen.
-If Rank/File is 0 and Destination is NOT the current Queen position, Destination is file to move to on same rank as Queen.
-If Rank/File is 0 and Destination is the current Queen position, diagnonal movement is encoded in next byte.
-Diagonal Queen Movement is value between 64 and 127 inclusive. Target position is (value - 64).
-
-## Comment Encoding
-# TODO
+| Rank/File Value | Destination | Target File/Rank |
+| --- | --- | --- |
+| 1 | Value | Current File / Value |
+| 0 | Current File | **Diagonal is stored in next byte.** Target position is (value - 64). Value MUST be between 64 and 127 inclusive. |
+| 0 | Any Other Value | Value / Current Rank |
