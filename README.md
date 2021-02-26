@@ -139,7 +139,22 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 | 0x03 | 1/2-1/2 | Draw |
 
 ##### Variation Counts
-# TODO
+Variation Counts stores three values: Variations, Comments, and NAGs (Numeric Annotation Glyphs).
+
+| **Bit**   | 11-8 | 7-4 | 3-0 |
+| --- | --- | --- | --- |
+| **Name**  | NAGs Code | Comments Code | Variations Code |
+
+###### Code Values
+| Code | Count Range |
+| --- | --- |
+| 0-10 | Exact Value |
+| 11 | 13-17 |
+| 12 | 18-24 |
+| 13 | 25-34 | 
+| 14 | 35-44 |
+| 15 | >= 50 |
+
 
 #### ECO Code
 | ECO Code | String Value |
@@ -469,6 +484,24 @@ Common values:
 | **Name**  | Special Flag (unused) | Check | Ambiguous Move: Include Rank in SAN | Ambiguous Move: Include File in SAN | Black to Move | Moving Piece | Captured Piece | En Passant File (unused) | Castling Flags (unused) | Special Move Flag | Promotion Piece Type | Origin Square | Destination Square |
 
 ###### Moving/Captured Piece
+| Value | Piece |
+| --- | --- |
+| 1 | King |
+| 2 | Queen |
+| 3 | Rook |
+| 4 | Bishop |
+| 5 | Knight |
+| 6 | Pawn |
+
+###### Special Move Flags
+| Value | Special Move |
+| --- | --- |
+| 0 | None |
+| 1 | Promotion |
+| 2 | En Passant |
+| 3 | Castling |
+
+###### Promotion Piece Types
 | Value | Piece Type |
 | --- | --- |
 | 0 | KNIGHT |
@@ -477,16 +510,6 @@ Common values:
 | 3 | QUEEN |
 
 Note: This is equal to the Stockfish [PieceType](https://github.com/official-stockfish/Stockfish/blob/7c30091a92abddb8265e53768b32751c49642040/src/types.h#L197) - 2
-  
-###### Special Move Flags
-| Value | Special Move |
-| 0 | No Special Move |
-| 1 | Promotion |
-| 2 | En Passant |
-| 3 | Castling |
-
-###### Promotion Piece Types
-
 
 ###### Squares
 
@@ -503,8 +526,12 @@ Note: This is equal to the Stockfish [PieceType](https://github.com/official-sto
 | **2** | 8  | 9  | 10 | 11 | 12 | 13 | 14 | 15 | 
 | **1** | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 
 
-#### Final Material
-# TODO
+#### Final Material Signature
+| **Bit**   | 23-22 | 21-20 | 19-18 | 17-16 | 15-12 | 11-10 | 9-8 | 7-6 | 5-4 | 3-0 |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **Name**  | Number of White Queens | Number of White Rooks | Number of White Bishops | Number of White Knights | Number of White Pawns | Number of Black Queens | Number of Black Rooks | Number of Black Bishops | Number of Black Knights | Number of Black Pawns |
+
+*Note: Only counts from 0 to 7 are possible for pawns, and only counts from 0 to 3 are possible for pieces.*
 
 #### Number of Plies / Home Pawn Data
 | **Bit**   | 71-70 | 69-0 |
