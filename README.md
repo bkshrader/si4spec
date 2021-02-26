@@ -76,7 +76,7 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 | **Name**  | Length High Bit | Unused | User-defined Flags |
 
 #### Length
-| **Bit**   | 23-16 | 15-0 |
+| **Bit**   | 15 | 14-0 |
 | --- | --- | --- |
 | **Name**  | Length High Bit | Length Low |
 
