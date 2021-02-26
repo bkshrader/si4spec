@@ -47,7 +47,7 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 | --- | --- | --- | --- |
 | Offset | 4 | uint | Location of entry starting byte in the GameBase |
 | Length Low | 2 | custom | Two least significant bytes (Big Endian) of the entry length in the GameBase |
-| Length High | 1 | custom | Most significant byte of the entry length in the GameBase. On Scid versions < 4 this value did not exist, so should be skipped if trying to read an older version file. |
+| Length High | 1 | custom | Most significant bit of the entry length in the GameBase and user-defined flags. On Scid versions < 4 this value did not exist, so should be skipped if trying to read an older version file. |
 | Flags | 2 | custom | Custom Index Flags (see below). |
 | White/Black High | 1 | custom | Most significant bits of the White and Black Player IDs in the NameBase. |
 | White ID Low | 2 | custom | Two least significant bytes of the White Player ID in the NameBase. |
@@ -70,10 +70,15 @@ result, eco, game length. Each entry takes up 47 bytes on-disk in version 4, and
 
 ### Description of Custom Data Types
 
+#### Length High
+| **Bit**   | 7 | 6 | 5-0 |
+| --- | --- | --- | --- |
+| **Name**  | Length High Bit | Unused | User-defined Flags |
+
 #### Length
 | **Bit**   | 23-16 | 15-0 |
 | --- | --- | --- |
-| **Name**  | Length High | Length Low |
+| **Name**  | Length High Bit | Length Low |
 
 #### Flags
 
@@ -511,7 +516,7 @@ Common values:
 
 Note: This is equal to the Stockfish [PieceType](https://github.com/official-stockfish/Stockfish/blob/7c30091a92abddb8265e53768b32751c49642040/src/types.h#L197) - 2
 
-###### Squares
+###### Chess Board Definition
 
 [Little-endian Rank/File Mapping](https://www.chessprogramming.org/Square_Mapping_Considerations#LittleEndianRankFileMapping)
 
@@ -525,6 +530,23 @@ Note: This is equal to the Stockfish [PieceType](https://github.com/official-sto
 | **3** | 16 | 17 | 18 | 19 | 20 | 21 | 22 | 23 | 
 | **2** | 8  | 9  | 10 | 11 | 12 | 13 | 14 | 15 | 
 | **1** | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 
+
+###### Movement Compass Rose
+ NW      N     NE
+ 
+  +7    +8    +9
+
+      \  |  /
+
+W -1 <-  0 -> +1 E
+
+      /  |  \
+
+  -9    -8    -7
+
+ SW      S     SE
+
+
 
 #### Final Material Signature
 | **Bit**   | 23-22 | 21-20 | 19-18 | 17-16 | 15-12 | 11-10 | 9-8 | 7-6 | 5-4 | 3-0 |
@@ -604,4 +626,207 @@ The body consists of one section each for the different NameBases: Player, Event
 >
 > The move encoding format is very compact: most moves take only a single byte (8 bits)! This is done by storing the piece to move in 4 bits (2^4 = 16 pieces) and the move direction in another 4 bits. Only Queen diagonal moves cannot be stored in this small space. This compactness is the reason Scid does not support chess variants.
 
+The Game File is divided into data blocks with a maximum size of 131072 bytes due to the IndexEntry Length of 17 bits. Games cannot cross over a block boundary. 
+
+# Game Entry
+| Name | Length (Bytes) | Data Type | Description |
+| --- | --- | --- | --- |
+| Non-standard Tags | terminated | custom | Tag names and values that are not standard in the PGN format. NULL-terminated.|
+| Flags | 1 | custom | Game flags. Redundant with IndexEntry, but only contains first three flags. |
+| Starting Position | terminated\* | string | FEN string for the starting position if non-standard. NULL-terminated. \*Does not exist if starting position is standard. |
+| Move List | terminated | custom | Full move list including variations. Custom terminated.|
+| Comments | variable | custom | Full list of user-defined comments. |
+
+[Reference Decoder](https://github.com/xmcpam/scid/blob/b21bf33983b21d37fc916a5edaed89897240f91d/src/game.cpp#L3466)
+
+## Non-standard Tags
+| Name | Length (Bytes) | Description |
+| --- | --- | --- |
+| Name Length | 1 | Length of the Non-standard Tag Name. |
+| Tag Name | Name Length | Name of the Non-standard Tag. |
+| Tag Length | 1 | Length of the Non-standard Tag. |
+| Tag | Tag Length | Value of the Non-standard Tag. |
+
+## Move List
+The Move List consists of consecutive one byte (two for queen moves) descriptions of each move or special markers. The values describe a depth-first traversal of the move variation tree.
+
+| Marker Value | Name | Description |
+| --- | --- | --- |
+|0-10| Move | An encoded move in the current board position. |
+| 11 | NAG | Marker indicating the next byte is a NAG value associated with its following move/marker. |
+| 12 | Comment | Marker indicating that the next move/marker has an associated comment (see comment list specification). |
+| 13 | Start | Marker indicating the start of a game or variation. |
+| 14 | End Variation | Marker indicating the end of a variation. |
+| 15 | End Game | Marker indicating the end of a game. All games MUST end with this marker or a corruption error will be thrown. |
+
+### NAG Encoding
+| Value | NAG |
+| --- | --- |
+| 1 | Good Move |
+| 2 | Poor Move |
+| 3 | Excellent Move |
+| 4 | Blunder |
+| 5 | Interesting Move |
+| 6 | Dubious Move |
+| 8 | Only Move |
+| 10 | Equal |
+| 13 | Unclear |
+| 14 | White Slight |
+| 15 | Black Slight |
+| 16 | White Clear |
+| 17 | Black Clear |
+| 18 | White Decisive |
+| 19 | Black Decisive |
+| 20 | White Crushing |
+| 21 | Black Crushing |
+| 22 | ZugZwang |
+| 23 | Black ZugZwang |
+| 26 | More Room |
+| 35 | Development Advantage |
+| 36 | With Initiative |
+| 40 | With Attack |
+| 41 | With Black Attack |
+| 44 | Compensation\* |
+| 48 | Slight Center\* |
+| 50 | Center |
+| 54 | Slight King Side\* |
+| 56 | Moderate King Side\* |
+| 58 | King Side\* |
+| 60 | Slight Queen Side\* |
+| 62 | Moderate Queen Side\* |
+| 64 | Queen Side\* |
+| 130 | Slight Counter Play\* |
+| 132 | Counter Play |
+| 134 | Decisive Counter Play |
+| 131 | Black Slight Counter Play |
+| 133 | Black Counter Play |
+| 135 | Black Decisive Counter Play |
+| 136 | Time Limit |
+| 140 | With Idea |
+| 142 | Better Is |
+| 144 | Various Moves |
+| 145 | Comment |
+| 146 | Novelty |
+| 147 | Weak Point |
+| 148 | Ending |
+| 149 | File |
+| 150 | Diagonal |
+| 151 | Bishop Pair |
+| 153 | Opposite Bishops |
+| 154 | Same Bishops |
+| 190 | Etc |
+| 191 | Double Pawns |
+| 192 | Separated Pawns |
+| 193 | United Pawns |
+| 201 | Diagram\*\* |
+| 210 | See\*\* |
+| 211 | Mate\*\* |
+| 212 | PassedPawn\*\* |
+| 213 | MorePawns\*\* |
+| 214 | With\*\* |
+| 215 | Without\*\* |
+
+\*From White's Perspective
+
+\*\* Scid-specific
+
+
+### Move Encoding
+| **Bit**   |  7-4 | 3-0 |
+| --- | --- | --- |
+| **Name**  | Piece Number | Encoded Move |
+
+The top 4 bits of the move is the Piece Number. Each piece for each player is assigned a piece number (0-15) which carries with it throughout the game. The type of that piece determines the encoding.
+
+#### Standard Piece Numbers
+| Piece Number | Piece |
+| --- | --- |
+| 0 | King |
+| 1 | Rook A |
+| 2 | Knight B |
+| 3 | Bishop C |
+| 4 | Queen |
+| 5 | Bishop F |
+| 6 | Knight G |
+| 7 | Rook H |
+
+*Note: If starting from a non-standard position the piece numbers are in the order they appear in the FEN, EXCEPT the King and the first piece that appears are swapped.
+
+#### King Encoding
+| Encoded Move | Movement |
+| --- | --- |
+| 1 | -9 |
+| 2 | -8 |
+| 3 | -7 | 
+| 4 | -1 | 
+| 5 | 1 |
+| 6 | 7 | 
+| 7 | 8 |
+| 8 | 9 |
+| 9 | -2 |
+|10 | 2 |
+
+#### Pawn Encoding
+| Encoded Move | Movement* | Promote To |
+| --- | --- | --- |
+| 0 | 7 | None |
+| 1 | 8 | None |
+| 2 | 9 | None |
+| 3 | 7 | Queen |
+| 4 | 8 | Queen |
+| 5 | 9 | Queen |
+| 6 | 7 | Rook |
+| 7 | 8 | Rook |
+| 8 | 9 | Rook |
+| 9 | 7 | Bishop |
+| 10 | 8 | Bishop |
+| 11 | 9 | Bishop |
+| 12 | 7 | Knight |
+| 13 | 8 | Knight |
+| 14 | 9 | Knight |
+
+*Note: Pawn Movements are given for white player. To get movement directions for black, negate the movement value.
+
+#### Knight Encoding
+| Value | Movement |
+| --- | --- |
+| 1 | -17 |
+| 2 | -15 |
+| 3 | -10 |
+| 4 | -6 |
+| 5 | 6 |
+| 6 | 10 |
+| 7 | 15 |
+| 8 | 17 |
+
+#### Rook Encoding
+| Value | To Rank | To File |
+| --- | --- | --- |
+| 0-7 | Value | - |
+| 8-15 | - | (Value - 8) |
+ 
+#### Bishop Encoding
+| **Bit**   |  3 | 2-0 |
+| --- | --- | --- |
+| **Name**  | Direction | Destination File |
+
+###### Direction
+| Direction | Movement |
+| --- | --- |
+| 0 | 9 |
+| 1 | -7 |
+
+*Note: Movement is the value to add to the previous position until reaching the destination file.
+
+#### Queen Encoding
+| **Bit**   | 3 | 2-0 |
+| --- | --- | --- |
+| **Name**  | Rank/File | Destination |
+
+If Rank/File is 1, Destination is the rank to move to on same file as Queen.
+If Rank/File is 0 and Destination is NOT the current Queen position, Destination is file to move to on same rank as Queen.
+If Rank/File is 0 and Destination is the current Queen position, diagnonal movement is encoded in next byte.
+Diagonal Queen Movement is value between 64 and 127 inclusive. Target position is (value - 64).
+
+## Comment Encoding
 # TODO
