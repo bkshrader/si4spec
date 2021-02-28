@@ -572,7 +572,7 @@ W -1 <-  0 -> +1 E
 | **Name**  | Data Length | Data |
 
 Data Length is a uint6 containing the number of valid entries in Data.
-Data is an array of uint4 index values indicating that the pawn at that index moved from its home square in the order the array is populated. The first index is in the most significant nibble of Data. The pawn index values start by counting the black pawns from the h file to the a file, then the white pawns from the h file to the a file.
+Data is an array of uint4 index values indicating that the pawn at that index moved from its home square in the order the array is populated. The first index is in the most significant nibble of Data. The pawn index values start by counting the black pawns from the h file to the a file, then the white pawns from the h file to the a file. Only the first move by a pawn is recorded.
 
 # The NameBase File (.sn4)
 
