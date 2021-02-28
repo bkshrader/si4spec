@@ -204,6 +204,11 @@ Variation Counts stores three values: Variations, Comments, and NAGs (Numeric An
 | --- | --- | --- | --- |
 | **Name**  | Year Mod | Event Month | Event Day |
 
+##### Combined
+| **Bit**   | 31-29 | 28-25 | 24-20 | 19-9 | 8-5 | 4-0 |
+| --- | --- | --- | --- | --- | --- | --- |
+| **Name**  |  Year Mod | Event Month | Event Day | Game Year | Game Month | Game Day |
+
 ##### Year Mod
 If Year Mod == 0 then event date is unknown
 Else Event Date = Game Date + Year Mod - 4
