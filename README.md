@@ -25,15 +25,15 @@ The Index file consists of a header 182 bytes long, followed by one 47 byte inde
 
 ## The Header
 
-| Name | Length (Bytes) | Data Type | Description |
+| Name | Offset (Bytes) | Length (Bytes) | Data Type | Description |
 | --- | --- | --- | --- |
-| Magic Header      | 8   | String | 8-byte identifier for Scid index files. 53 63 69 64 2E 73 69 00 in Hex i.e. Scid.si\NUL in ASCII |
-| Version Number    | 2   | Uint    | Scid version number that wrote the file. 400 for si4. |
-| Database Type     | 4   | uint    | A byte sequence that describes the type of the database, e.g. tournament, theory, etc. |
-| Number of Games   | 3   | uint    | Number of games stored in the database. |
-| Auto Load Game    | 3   | uint    | Game number to autoload: 0=none, 1=1st, >numGames=last |
-| Description       | 108 | string  | A fixed-length null-terminated string describing the database |
-| Custom Flags      | 54  | custom  | There are six custom flag entries. Each entry is a nine byte null-terminated ASCII string. Within each entry, any byte following a zero byte must be ignored. |
+| Magic Header | 0x00 | 8 | string | 8-byte identifier for Scid index files. 53 63 69 64 2E 73 69 00 in Hex i.e. Scid.si\NUL in ASCII |
+| Version Number | 0x08 | 2 | Uint | Scid version number that wrote the file. 400 for si4. |
+| Database Type | 0x0A | 4 | uint | A byte sequence that describes the type of the database, e.g. tournament, theory, etc. |
+| Number of Games | 0x0E | 3 | uint| Number of games stored in the database. |
+| Auto Load Game | 0x11 | 3 | uint | Game number to autoload: 0=none, 1=1st, >numGames=last |
+| Description | 0x14 | 108 | string | A fixed-length null-terminated string describing the database |
+| Custom Flags | 0x80 | 54 | custom | There are six custom flag entries. Each entry is a nine byte null-terminated ASCII string. Within each entry, any byte following a zero byte must be ignored. |
 
 **Total Length of Header: 182 bytes**
 
