@@ -537,19 +537,15 @@ Note: This is equal to the Stockfish [PieceType](https://github.com/official-sto
 | **1** | 0  | 1  | 2  | 3  | 4  | 5  | 6  | 7  | 
 
 ###### Movement Compass Rose
+```
  NW      N     NE
- 
   +7    +8    +9
-
       \  |  /
-
 W -1 <-  0 -> +1 E
-
       /  |  \
-
   -9    -8    -7
-
  SW      S     SE
+ ```
 
 
 
@@ -571,7 +567,7 @@ W -1 <-  0 -> +1 E
 | **Name**  | Number of Plies High | Number of Plies Low |
 
 ##### Home Pawn Data
-| **Bit**   |  69-65 | 63-0 |
+| **Bit**   |  69-64 | 63-0 |
 | --- | --- | --- |
 | **Name**  | Data Length | Data |
 
