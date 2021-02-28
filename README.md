@@ -26,7 +26,7 @@ The Index file consists of a header 182 bytes long, followed by one 47 byte inde
 ## The Header
 
 | Name | Offset (Bytes) | Length (Bytes) | Data Type | Description |
-| --- | --- | --- | --- |
+| --- | --- | --- | --- | --- |
 | Magic Header | 0x00 | 8 | string | 8-byte identifier for Scid index files. 53 63 69 64 2E 73 69 00 in Hex i.e. Scid.si\NUL in ASCII |
 | Version Number | 0x08 | 2 | Uint | Scid version number that wrote the file. 400 for si4. |
 | Database Type | 0x0A | 4 | uint | A byte sequence that describes the type of the database, e.g. tournament, theory, etc. |
