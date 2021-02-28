@@ -554,7 +554,7 @@ W -1 <-  0 -> +1 E
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
 | **Name**  | Number of White Queens | Number of White Rooks | Number of White Bishops | Number of White Knights | Number of White Pawns | Number of Black Queens | Number of Black Rooks | Number of Black Bishops | Number of Black Knights | Number of Black Pawns |
 
-*Note: Only counts from 0 to 8 are possible for pawns, and only counts from 0 to 3 are possible for pieces.*
+*Note: Only counts from 0 to 15 are possible for pawns, and only counts from 0 to 3 are possible for pieces.*
 
 #### Number of Plies / Home Pawn Data
 | **Bit**   | 71-70 | 69-0 |
