@@ -211,7 +211,7 @@ Variation Counts stores three values: Variations, Comments, and NAGs (Numeric An
 
 ##### Year Mod
 If Year Mod == 0 then event date is unknown
-Else Event Date = Game Date + Year Mod - 4
+Else Event Year = Game Year + Year Mod - 4
 
 Common values:
 | Year Mod | Description |
